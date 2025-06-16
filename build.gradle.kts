@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation("org.projectlombok:lombok:1.18.38")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.38")
 
