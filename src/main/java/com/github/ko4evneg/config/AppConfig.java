@@ -1,4 +1,4 @@
-package com.github.ko4evneg;
+package com.github.ko4evneg.config;
 
 import lombok.Getter;
 
