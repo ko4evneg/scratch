@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 @Getter
 public class Matrix {
+    private static final String MISS_BONUS = "MISS";
+
     private final Random random = new Random();
     private final SymbolProbability bonusProbability;
     private final List<SymbolProbability> augmentedStandardProbabilities;
@@ -30,12 +32,12 @@ public class Matrix {
         return quantityPerSymbol;
     }
 
-    public List<String> getFieldBonuses() {
+    public List<String> getNonMissFieldBonuses() {
         List<String> appliedBonuses = new ArrayList<>();
         Set<String> bonusSymbols = new HashSet<>(bonusProbability.symbols().keySet());
         traverseField((row, column) -> {
             String currentSymbol = field[row][column];
-            if (bonusSymbols.contains(currentSymbol)) {
+            if (bonusSymbols.contains(currentSymbol) && !MISS_BONUS.equals(currentSymbol)) {
                 appliedBonuses.add(currentSymbol);
             }
         });

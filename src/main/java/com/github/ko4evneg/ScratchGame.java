@@ -4,12 +4,12 @@ import com.github.ko4evneg.config.AppConfig;
 import com.github.ko4evneg.config.game.GameConfig;
 import com.github.ko4evneg.game.Game;
 
-public class Main {
+public class ScratchGame {
     public static void main(String... args) {
         AppConfig appConfig = new AppConfig(args);
         GameConfig gameConfig = ScratchSerializer.deserialize(appConfig.getConfigPath());
-        //validate probabilities
-        Game game = new Game(gameConfig);
+        //TODO validate probabilities; first cell symbol; win combinations count < overall
+        Game game = new Game(gameConfig, appConfig.getBettingAmount());
         GameResult result = game.start();
         String textResult = ScratchSerializer.serialize(result);
         System.out.println(textResult);
