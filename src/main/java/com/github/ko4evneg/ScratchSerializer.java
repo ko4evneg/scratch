@@ -10,16 +10,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @UtilityClass
-public class GameConfigParser {
+public class ScratchSerializer {
     private static final ObjectMapper mapper = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
-    public static GameConfig parse(Path path) {
+    public static GameConfig deserialize(Path path) {
         try {
             byte[] rawConfig = Files.readAllBytes(path);
             return mapper.readValue(rawConfig, GameConfig.class);
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot parse config file", e);
+            throw new IllegalStateException("Cannot deserialize config file", e);
+        }
+    }
+
+    public static String serialize(GameResult gameResult) {
+        try {
+            return mapper.writeValueAsString(gameResult);
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot serialize game result", e);
         }
     }
 }
