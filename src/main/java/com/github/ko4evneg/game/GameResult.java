@@ -29,6 +29,6 @@ public final class GameResult {
         this.appliedBonusSymbol = appliedBonusSymbol;
         this.appliedWinningCombinations = winCombinations.stream()
                 .collect(Collectors.groupingBy(SymbolWinCombination::symbol,
-                        Collectors.mapping(symbolWinComb -> symbolWinComb.combination().name(), Collectors.toList())));
+                        Collectors.mapping(SymbolWinCombination::combinationName, Collectors.toList())));
     }
 }

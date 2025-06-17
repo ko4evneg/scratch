@@ -12,9 +12,9 @@ public class WinCombinationCalculator {
     private final Map<String, Symbol> symbolsByName;
 
     public List<SymbolWinCombination> calculateWinCombinations(Matrix matrix) {
-        Map<CombinationGroup, List<WinCombination>> combinationByGroup = winCombinations.entrySet().stream()
+        Map<CombinationGroup, Map<String, Combination>> combinationByGroup = winCombinations.entrySet().stream()
                 .collect(Collectors.groupingBy(e -> e.getValue().group(),
-                        Collectors.mapping(e -> new WinCombination(e.getKey(), e.getValue()), Collectors.toList())));
+                        Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
         List<SymbolWinCombination> applicableCombinations = new ArrayList<>();
         combinationByGroup.forEach((group, combinations) -> {
             switch (group) {
@@ -24,21 +24,21 @@ public class WinCombinationCalculator {
         return applicableCombinations;
     }
 
-    private Optional<SymbolWinCombination> getSameSymbolCombination(List<WinCombination> combinations, Matrix matrix) {
+    private Optional<SymbolWinCombination> getSameSymbolCombination(Map<String, Combination> combinations, Matrix matrix) {
         Map<String, Integer> quantityPerStandardSymbol = matrix.getQuantityPerSymbol().entrySet().stream()
                 .filter(this::isStandardSymbol)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         List<SymbolWinCombination> sameSymbolWinCombinations = new ArrayList<>();
         quantityPerStandardSymbol
-                .forEach((symbol, count) -> combinations.stream()
-                        .filter(winComb -> winComb.combination().when() == CombinationType.SAME_SYMBOLS)
-                        .filter(winComb -> winComb.combination().count() <= count)
-                        .map(comb -> new SymbolWinCombination(symbol, comb))
+                .forEach((symbol, count) -> combinations.entrySet().stream()
+                        .filter(combEntry -> combEntry.getValue().when() == CombinationType.SAME_SYMBOLS)
+                        .filter(combEntry -> combEntry.getValue().count() <= count)
+                        .map(combEntry -> new SymbolWinCombination(symbol, combEntry.getKey(), combEntry.getValue()))
                         .forEach(sameSymbolWinCombinations::add)
                 );
         return sameSymbolWinCombinations.stream()
-                .max(Comparator.comparing(winComb -> winComb.combination().combination().rewardMultiplier()));
+                .max(Comparator.comparing(SymbolWinCombination::getRewardMultiplier));
     }
 
     private boolean isStandardSymbol(Map.Entry<String, Integer> entry) {
