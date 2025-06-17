@@ -1,6 +1,7 @@
 # HOW TO
 
-RUN [ScratchGame.java](src/main/java/com/github/ko4evneg/ScratchGame.java)
+At root of the project execute `.\gradlew jar`\
+In a build/lib folder you'll find required jar. Execute it like requested in assignment.
 
 # ASSUMPTIONS
 
