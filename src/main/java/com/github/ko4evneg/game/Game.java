@@ -21,7 +21,10 @@ public class Game {
         List<SymbolWinCombination> winCombinations = winCombinationCalculator.calculateWinCombinations(matrix);
         String appliedBonusSymbol = null;
         if (!winCombinations.isEmpty()) {
-            appliedBonusSymbol = String.join(",", matrix.getNonMissFieldBonuses());
+            List<String> bonuses = matrix.getNonMissFieldBonuses();
+            if (!bonuses.isEmpty()) {
+                appliedBonusSymbol = String.join(",", bonuses);
+            }
         }
         Reward reward = new Reward(winCombinations, matrix.getNonMissFieldBonuses(), config.symbols(), bettingAmount);
         return new GameResult(matrix, reward.getAmount(), appliedBonusSymbol, winCombinations);
