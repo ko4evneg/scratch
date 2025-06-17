@@ -13,13 +13,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 class MatrixTest {
-    private final Random mockRandom = mock(Random.class);
+    private final Random random = mock(Random.class);
     private final Map<String, Integer> bonusSymbolProbability = new LinkedHashMap<>();
     private final Map<String, Integer> standardSymbolsProbability = new LinkedHashMap<>();
 
     @BeforeEach
     void setUp() {
-        doReturn(0.9).when(mockRandom).nextDouble();
+        doReturn(0.9).when(random).nextDouble();
         standardSymbolsProbability.put("A", 1);
         standardSymbolsProbability.put("B", 2);
         standardSymbolsProbability.put("C", 3);
@@ -32,9 +32,9 @@ class MatrixTest {
     void shouldCreateMatrixWithStandardSymbolsWhenBonusRandomFails() {
         Probabilities probabilities = new Probabilities(
                 createSymbolProbabilities(standardSymbolsProbability), new SymbolProbability(null, null, Map.of()));
-        doReturn(0, 1, 2, 3, 4, 5).when(mockRandom).nextInt(6);
+        doReturn(0, 1, 2, 3, 4, 5).when(random).nextInt(6);
 
-        Matrix matrix = new Matrix(2, 3, probabilities, mockRandom);
+        Matrix matrix = new Matrix(2, 3, probabilities, random);
         String[][] actualField = matrix.getField();
         List<String> actualSymbols = Arrays.stream(actualField).flatMap(Arrays::stream).toList();
 
@@ -46,10 +46,10 @@ class MatrixTest {
     void shouldCreateMatrixWithBonusSymbolsWhenBonusRandomSucceeds() {
         Probabilities probabilities = new Probabilities(List.of(
                 new SymbolProbability(0, 0, standardSymbolsProbability)), new SymbolProbability(null, null, bonusSymbolProbability));
-        doReturn(0.0999).when(mockRandom).nextDouble();
-        doReturn(0, 1, 2, 3, 4, 5).when(mockRandom).nextInt(6);
+        doReturn(0.0999).when(random).nextDouble();
+        doReturn(0, 1, 2, 3, 4, 5).when(random).nextInt(6);
 
-        Matrix matrix = new Matrix(2, 3, probabilities, mockRandom);
+        Matrix matrix = new Matrix(2, 3, probabilities, random);
         String[][] actualField = matrix.getField();
         List<String> actualSymbols = Arrays.stream(actualField).flatMap(Arrays::stream).toList();
 
@@ -61,9 +61,9 @@ class MatrixTest {
     void shouldFillCellsWithFirstSymbolWhenNotDefinedInSymbols() {
         Probabilities probabilities = new Probabilities(
                 List.of(new SymbolProbability(0, 0, Map.of("X", 1))), new SymbolProbability(null, null, Map.of()));
-        doReturn(0, 1, 2, 3, 4, 5, 6, 7, 8).when(mockRandom).nextInt(9);
+        doReturn(0, 1, 2, 3, 4, 5, 6, 7, 8).when(random).nextInt(9);
 
-        Matrix matrix = new Matrix(3, 3, probabilities, mockRandom);
+        Matrix matrix = new Matrix(3, 3, probabilities, random);
         String[][] actualField = matrix.getField();
         List<String> actualSymbols = Arrays.stream(actualField).flatMap(Arrays::stream).toList();
 
@@ -76,10 +76,10 @@ class MatrixTest {
     void shouldCountSymbolQuantitiesCorrectly() {
         Probabilities probabilities = new Probabilities(
                 createSymbolProbabilities(standardSymbolsProbability), new SymbolProbability(null, null, bonusSymbolProbability));
-        doReturn(0.2, 0.2, 0.2, 0.2, 0.01).when(mockRandom).nextDouble();
-        doReturn(0, 6, 4, 2, 3).when(mockRandom).nextInt(6);
+        doReturn(0.2, 0.2, 0.2, 0.2, 0.01).when(random).nextDouble();
+        doReturn(0, 6, 4, 2, 3).when(random).nextInt(6);
 
-        Matrix matrix = new Matrix(2, 3, probabilities, mockRandom);
+        Matrix matrix = new Matrix(2, 3, probabilities, random);
 
         assertThat(matrix.getQuantityPerSymbol())
                 .contains(
@@ -95,10 +95,10 @@ class MatrixTest {
     void shouldDetectBonusSymbolsExcludingMiss() {
         Probabilities probabilities = new Probabilities(List.of(
                 new SymbolProbability(0, 0, standardSymbolsProbability)), new SymbolProbability(null, null, bonusSymbolProbability));
-        doReturn(0.0999).when(mockRandom).nextDouble();
-        doReturn(0, 1, 2, 3, 4, 5).when(mockRandom).nextInt(6);
+        doReturn(0.0999).when(random).nextDouble();
+        doReturn(0, 1, 2, 3, 4, 5).when(random).nextInt(6);
 
-        Matrix matrix = new Matrix(2, 3, probabilities, mockRandom);
+        Matrix matrix = new Matrix(2, 3, probabilities, random);
 
         assertThat(matrix.getNonMissFieldBonuses()).containsExactlyInAnyOrder("+50", "*2", "*2");
     }
