@@ -3,6 +3,7 @@ package com.github.ko4evneg;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.github.ko4evneg.config.game.GameConfig;
+import com.github.ko4evneg.game.GameResult;
 import lombok.experimental.UtilityClass;
 
 import java.io.IOException;
