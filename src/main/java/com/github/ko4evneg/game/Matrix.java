@@ -5,21 +5,41 @@ import com.github.ko4evneg.config.game.SymbolProbability;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Getter
 public class Matrix {
     private final Random random = new Random();
+    private final SymbolProbability bonusProbability;
+    private final List<SymbolProbability> augmentedStandardProbabilities;
     private final String[][] field;
 
     public Matrix(int rows, int columns, Probabilities probabilities) {
         field = new String[rows][columns];
+        bonusProbability = probabilities.bonusSymbols();
+        List<SymbolProbability> standardProbabilities = probabilities.standardSymbols();
+        augmentedStandardProbabilities = getAugmentedStandardProbabilities(standardProbabilities);
+        fillMatrix();
+    }
 
-        SymbolProbability bonusProbability = probabilities.getBonusSymbols();
-        List<SymbolProbability> standardSymbols = probabilities.getStandardSymbols();
-        List<SymbolProbability> standardProbabilities = getAugmentedStandardProbabilities(standardSymbols);
+    public Map<String, Integer> getQuantityPerSymbol() {
+        Map<String, Integer> quantityPerSymbol = new HashMap<>();
+        traverseField((row, column) ->
+                quantityPerSymbol.merge(field[row][column], 1, (oldVal, val) -> oldVal + 1 ));
+        return quantityPerSymbol;
+    }
 
-        fillMatrix(bonusProbability, standardProbabilities);
+    public List<String> getFieldBonuses() {
+        List<String> appliedBonuses = new ArrayList<>();
+        Set<String> bonusSymbols = new HashSet<>(bonusProbability.symbols().keySet());
+        traverseField((row, column) -> {
+            String currentSymbol = field[row][column];
+            if (bonusSymbols.contains(currentSymbol)) {
+                appliedBonuses.add(currentSymbol);
+            }
+        });
+        return appliedBonuses;
     }
 
     private List<SymbolProbability> getAugmentedStandardProbabilities(List<SymbolProbability> standardProbabilities) {
@@ -29,24 +49,22 @@ public class Matrix {
         SymbolProbability referenceProbability = standardProbabilities.getFirst();
 
         List<SymbolProbability> augmentedProbabilities = new ArrayList<>(standardProbabilities);
-        for (int row = 0; row < field.length; row++) {
-            for (int column = 0; column < field[0].length; column++) {
-                Cell checkedCell = new Cell(row, column);
-                if (!filledCells.contains(checkedCell)) {
-                    SymbolProbability augmentedProbability = new SymbolProbability(row, column, referenceProbability.getSymbols());
-                    augmentedProbabilities.add(augmentedProbability);
-                }
+        traverseField((row, column) -> {
+            Cell checkedCell = new Cell(row, column);
+            if (!filledCells.contains(checkedCell)) {
+                SymbolProbability augmentedProbability = new SymbolProbability(row, column, referenceProbability.symbols());
+                augmentedProbabilities.add(augmentedProbability);
             }
-        }
+        });
 
         return augmentedProbabilities;
     }
 
-    private void fillMatrix(SymbolProbability bonusSymbolsProbability, List<SymbolProbability> standardSymbolsProbabilities) {
-        Map<String, Integer> bonusSymbolsProbabilities = bonusSymbolsProbability.getSymbols();
+    private void fillMatrix() {
+        Map<String, Integer> bonusSymbolsProbabilities = bonusProbability.symbols();
 
-        for (SymbolProbability symbolProbability : standardSymbolsProbabilities) {
-            Map<String, Integer> standardSymbolProbability = symbolProbability.getSymbols();
+        for (SymbolProbability symbolProbability : augmentedStandardProbabilities) {
+            Map<String, Integer> standardSymbolProbability = symbolProbability.symbols();
             Map<String, Integer> allSymbolsProbabilities = new HashMap<>(bonusSymbolsProbabilities);
             allSymbolsProbabilities.putAll(standardSymbolProbability);
 
@@ -57,9 +75,17 @@ public class Matrix {
                 weight += entry.getValue();
                 if (weight > randomWeight) {
                     String symbolName = entry.getKey();
-                    field[symbolProbability.getRow()][symbolProbability.getColumn()] = symbolName;
+                    field[symbolProbability.row()][symbolProbability.column()] = symbolName;
                     break;
                 }
+            }
+        }
+    }
+
+    private void traverseField(BiConsumer<Integer, Integer> consumer) {
+        for (int row = 0; row < field.length; row++) {
+            for (int column = 0; column < field[0].length; column++) {
+                consumer.accept(row, column);
             }
         }
     }
@@ -69,8 +95,8 @@ public class Matrix {
         private final int column;
 
         public Cell(SymbolProbability symbolProbability) {
-            this.row = symbolProbability.getRow();
-            this.column = symbolProbability.getColumn();
+            this.row = symbolProbability.row();
+            this.column = symbolProbability.column();
         }
 
         public Cell(int row, int column) {
