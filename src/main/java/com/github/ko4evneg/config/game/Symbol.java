@@ -6,6 +6,6 @@ public record Symbol(
         SymbolType type,
         BigDecimal rewardMultiplier,
         BigDecimal extra,
-        String impact
+        BonusImpact impact
 ) {
 }

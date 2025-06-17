@@ -23,7 +23,7 @@ public class Game {
         if (!winCombinations.isEmpty()) {
             appliedBonusSymbol = String.join(",", matrix.getNonMissFieldBonuses());
         }
-        Reward reward = new Reward(winCombinations, matrix.getNonMissFieldBonuses(), bettingAmount);
+        Reward reward = new Reward(winCombinations, matrix.getNonMissFieldBonuses(), config.symbols(), bettingAmount);
         return new GameResult(matrix, reward.getAmount(), appliedBonusSymbol, winCombinations);
     }
 }
