@@ -2,12 +2,14 @@ package com.github.ko4evneg.game;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Getter
 public final class GameResult {
     @JsonProperty(value = "matrix")
     private final String[][] field;

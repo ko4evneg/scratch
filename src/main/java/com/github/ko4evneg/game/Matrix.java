@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 @Getter
@@ -13,12 +14,13 @@ public class Matrix {
     private static final String MISS_BONUS = "MISS";
     private static final double BONUS_PROBABILITY_PER_CELL = 0.10;
 
-    private final Random random = new Random();
+    private final RandomGenerator randomGenerator;
     private final SymbolProbability bonusProbability;
     private final List<SymbolProbability> augmentedStandardProbabilities;
     private final String[][] field;
 
-    public Matrix(int rows, int columns, Probabilities probabilities) {
+    public Matrix(int rows, int columns, Probabilities probabilities, Random randomGenerator) {
+        this.randomGenerator = randomGenerator;
         field = new String[rows][columns];
         bonusProbability = probabilities.bonusSymbols();
         List<SymbolProbability> standardProbabilities = probabilities.standardSymbols();
@@ -68,7 +70,7 @@ public class Matrix {
 
         for (SymbolProbability symbolProbability : augmentedStandardProbabilities) {
             String selectedSymbol;
-            if (random.nextDouble() < BONUS_PROBABILITY_PER_CELL) {
+            if (randomGenerator.nextDouble() < BONUS_PROBABILITY_PER_CELL) {
                 selectedSymbol = selectSymbolFromProbabilities(bonusSymbolsProbabilities);
             } else {
                 Map<String, Integer> standardSymbolProbability = symbolProbability.symbols();
@@ -81,7 +83,7 @@ public class Matrix {
 
     private String selectSymbolFromProbabilities(Map<String, Integer> symbolProbabilities) {
         int totalWeight = symbolProbabilities.values().stream().mapToInt(Integer::intValue).sum();
-        int randomWeight = random.nextInt(totalWeight);
+        int randomWeight = randomGenerator.nextInt(totalWeight);
         int weight = 0;
 
         for (Map.Entry<String, Integer> entry : symbolProbabilities.entrySet()) {
