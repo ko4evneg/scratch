@@ -28,25 +28,6 @@ public class Matrix {
         fillMatrix();
     }
 
-    public Map<String, Integer> getQuantityPerSymbol() {
-        Map<String, Integer> quantityPerSymbol = new HashMap<>();
-        traverseField((row, column) ->
-                quantityPerSymbol.merge(field[row][column], 1, (oldVal, val) -> oldVal + 1));
-        return quantityPerSymbol;
-    }
-
-    public List<String> getNonMissFieldBonuses() {
-        List<String> appliedBonuses = new ArrayList<>();
-        Set<String> bonusSymbols = new HashSet<>(bonusProbability.symbols().keySet());
-        traverseField((row, column) -> {
-            String currentSymbol = field[row][column];
-            if (bonusSymbols.contains(currentSymbol) && !MISS_BONUS.equals(currentSymbol)) {
-                appliedBonuses.add(currentSymbol);
-            }
-        });
-        return appliedBonuses;
-    }
-
     private List<SymbolProbability> getAugmentedStandardProbabilities(List<SymbolProbability> standardProbabilities) {
         Set<Cell> filledCells = standardProbabilities.stream()
                 .map(Cell::new)
@@ -94,6 +75,25 @@ public class Matrix {
         }
 
         return symbolProbabilities.keySet().iterator().next();
+    }
+
+    public Map<String, Integer> getQuantityPerSymbol() {
+        Map<String, Integer> quantityPerSymbol = new HashMap<>();
+        traverseField((row, column) ->
+                quantityPerSymbol.merge(field[row][column], 1, (oldVal, val) -> oldVal + 1));
+        return quantityPerSymbol;
+    }
+
+    public List<String> getNonMissFieldBonuses() {
+        List<String> appliedBonuses = new ArrayList<>();
+        Set<String> bonusSymbols = new HashSet<>(bonusProbability.symbols().keySet());
+        traverseField((row, column) -> {
+            String currentSymbol = field[row][column];
+            if (bonusSymbols.contains(currentSymbol) && !MISS_BONUS.equals(currentSymbol)) {
+                appliedBonuses.add(currentSymbol);
+            }
+        });
+        return appliedBonuses;
     }
 
     private void traverseField(BiConsumer<Integer, Integer> consumer) {
