@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 @Getter
 public class Matrix {
     private static final String MISS_BONUS = "MISS";
+    private static final double BONUS_PROBABILITY_PER_CELL = 0.10;
 
     private final Random random = new Random();
     private final SymbolProbability bonusProbability;
@@ -28,7 +29,7 @@ public class Matrix {
     public Map<String, Integer> getQuantityPerSymbol() {
         Map<String, Integer> quantityPerSymbol = new HashMap<>();
         traverseField((row, column) ->
-                quantityPerSymbol.merge(field[row][column], 1, (oldVal, val) -> oldVal + 1 ));
+                quantityPerSymbol.merge(field[row][column], 1, (oldVal, val) -> oldVal + 1));
         return quantityPerSymbol;
     }
 
@@ -66,22 +67,31 @@ public class Matrix {
         Map<String, Integer> bonusSymbolsProbabilities = bonusProbability.symbols();
 
         for (SymbolProbability symbolProbability : augmentedStandardProbabilities) {
-            Map<String, Integer> standardSymbolProbability = symbolProbability.symbols();
-            Map<String, Integer> allSymbolsProbabilities = new HashMap<>(bonusSymbolsProbabilities);
-            allSymbolsProbabilities.putAll(standardSymbolProbability);
+            String selectedSymbol;
+            if (random.nextDouble() < BONUS_PROBABILITY_PER_CELL) {
+                selectedSymbol = selectSymbolFromProbabilities(bonusSymbolsProbabilities);
+            } else {
+                Map<String, Integer> standardSymbolProbability = symbolProbability.symbols();
+                selectedSymbol = selectSymbolFromProbabilities(standardSymbolProbability);
+            }
 
-            int totalSymbolsWeight = allSymbolsProbabilities.values().stream().mapToInt(Integer::intValue).sum();
-            int randomWeight = this.random.nextInt(totalSymbolsWeight);
-            int weight = 0;
-            for (Map.Entry<String, Integer> entry : allSymbolsProbabilities.entrySet()) {
-                weight += entry.getValue();
-                if (weight > randomWeight) {
-                    String symbolName = entry.getKey();
-                    field[symbolProbability.row()][symbolProbability.column()] = symbolName;
-                    break;
-                }
+            field[symbolProbability.row()][symbolProbability.column()] = selectedSymbol;
+        }
+    }
+
+    private String selectSymbolFromProbabilities(Map<String, Integer> symbolProbabilities) {
+        int totalWeight = symbolProbabilities.values().stream().mapToInt(Integer::intValue).sum();
+        int randomWeight = random.nextInt(totalWeight);
+        int weight = 0;
+
+        for (Map.Entry<String, Integer> entry : symbolProbabilities.entrySet()) {
+            weight += entry.getValue();
+            if (weight > randomWeight) {
+                return entry.getKey();
             }
         }
+
+        return symbolProbabilities.keySet().iterator().next();
     }
 
     private void traverseField(BiConsumer<Integer, Integer> consumer) {
